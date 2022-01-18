@@ -184,8 +184,6 @@ var Player = /*#__PURE__*/function () {
 
       if (this.position.y + this.height + this.velocity.y <= canvas.height) {
         this.velocity.y += gravity;
-      } else {
-        this.velocity.y = 0;
       }
     }
   }]);
@@ -249,7 +247,6 @@ var GenericObject = /*#__PURE__*/function () {
 
 
 function createImage(imageSrc) {
-  console.log(imageSrc);
   var image = new Image();
   image.src = imageSrc;
   return image;
@@ -263,6 +260,10 @@ var platforms = [new Platform({
   image: platformImage
 }), new Platform({
   x: platformImage.width - 3,
+  y: 470,
+  image: platformImage
+}), new Platform({
+  x: platformImage.width * 2 + 100,
   y: 470,
   image: platformImage
 })];
@@ -285,6 +286,35 @@ var keys = {
 }; // tracking platform scrolling
 
 var scrollOffset = 0;
+
+function init() {
+  platformImage = createImage(_images_platform_png__WEBPACK_IMPORTED_MODULE_0__["default"]);
+  player = new Player();
+  platforms = [new Platform({
+    x: -1,
+    y: 470,
+    image: platformImage
+  }), new Platform({
+    x: platformImage.width - 3,
+    y: 470,
+    image: platformImage
+  }), new Platform({
+    x: platformImage.width * 2 + 100,
+    y: 470,
+    image: platformImage
+  })];
+  genericObjects = [new GenericObject({
+    x: -1,
+    y: -1,
+    image: createImage(_images_background_png__WEBPACK_IMPORTED_MODULE_2__["default"])
+  }), new GenericObject({
+    x: -1,
+    y: -1,
+    image: createImage(_images_hills_png__WEBPACK_IMPORTED_MODULE_1__["default"])
+  })]; // tracking platform scrolling
+
+  scrollOffset = 0;
+}
 
 function animate() {
   //creates recursive animation loop
@@ -332,10 +362,16 @@ function animate() {
     if (player.position.y + player.height <= platform.position.y && player.position.y + player.height + player.velocity.y >= platform.position.y && player.position.x + player.width >= platform.position.x && player.position.x <= platform.position.x + platform.width) {
       player.velocity.y = 0;
     }
-  });
+  }); // win condition
 
   if (scrollOffset === 2000) {
     console.log("You win");
+  } // lose condition
+
+
+  if (player.position.y > canvas.height) {
+    console.log("You lose");
+    init();
   }
 }
 

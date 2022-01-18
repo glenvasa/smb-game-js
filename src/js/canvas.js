@@ -1,6 +1,7 @@
 import platform from "../images/platform.png";
 import hills from "../images/hills.png";
 import background from "../images/background.png";
+import platformSmallTall from "../images/platformSmallTall.png";
 
 const canvas = document.querySelector("canvas");
 
@@ -14,6 +15,7 @@ const gravity = 0.5;
 
 class Player {
   constructor() {
+    this.speed = 10
     this.position = {
       x: 100,
       y: 100,
@@ -86,39 +88,13 @@ function createImage(imageSrc) {
 }
 
 let platformImage = createImage(platform);
+let platformSmallTallImage = createImage(platformSmallTall)
 
 let player = new Player();
 
-let platforms = [
-  new Platform({
-    x: -1,
-    y: 470,
-    image: platformImage,
-  }),
-  new Platform({
-    x: platformImage.width - 3,
-    y: 470,
-    image: platformImage,
-  }),
-  new Platform({
-    x: platformImage.width * 2 + 100,
-    y: 470,
-    image: platformImage,
-  }),
-];
+let platforms = [];
 
-let genericObjects = [
-  new GenericObject({
-    x: -1,
-    y: -1,
-    image: createImage(background),
-  }),
-  new GenericObject({
-    x: -1,
-    y: -1,
-    image: createImage(hills),
-  }),
-];
+let genericObjects = [];
 
 const keys = {
   right: {
@@ -139,6 +115,11 @@ function init() {
 
   platforms = [
     new Platform({
+      x: platformImage.width * 4 + 300 - 2 + platformImage.width - platformSmallTallImage.width,
+      y: 270,
+      image: platformSmallTallImage,
+    }),
+    new Platform({
       x: -1,
       y: 470,
       image: platformImage,
@@ -153,6 +134,20 @@ function init() {
       y: 470,
       image: platformImage,
     }),
+    new Platform({
+      x: platformImage.width * 3 + 300,
+      y: 470,
+      image: platformImage,
+    }),
+    new Platform({
+      x: platformImage.width * 4 + 300 - 2,
+      y: 470,
+      image: platformImage,
+    }), new Platform({
+      x: platformImage.width * 5 + 700 - 2,
+      y: 470,
+      image: platformImage,
+    })
   ];
 
   genericObjects = [
@@ -190,28 +185,28 @@ function animate() {
   player.update();
 
   if (keys.right.pressed && player.position.x < 400) {
-    player.velocity.x = 5;
+    player.velocity.x = player.speed;
   } else if (keys.left.pressed && player.position.x > 100) {
-    player.velocity.x = -5;
+    player.velocity.x = -player.speed;
   } else {
     player.velocity.x = 0;
     // this is the point where we either move player to the max left or right, player actually stops moving and then
     // platforms/background moves to give illusion that player still moving
     if (keys.right.pressed) {
-      scrollOffset += 5;
+      scrollOffset += player.speed;
       platforms.forEach((platform) => {
-        platform.position.x -= 5;
+        platform.position.x -= player.speed;
       });
       genericObjects.forEach((obj) => {
-        obj.position.x -= 3;
+        obj.position.x -= player.speed * .66;
       });
     } else if (keys.left.pressed) {
-      scrollOffset -= 5;
+      scrollOffset -= player.speed;
       platforms.forEach((platform) => {
-        platform.position.x += 5;
+        platform.position.x += player.speed;
       });
       genericObjects.forEach((obj) => {
-        obj.position.x += 3;
+        obj.position.x += player.speed * .66;
       });
     }
   }
@@ -230,7 +225,7 @@ function animate() {
   });
 
   // win condition
-  if (scrollOffset === 2000) {
+  if (scrollOffset > platformImage.width * 5 + 300 -2) {
     console.log("You win");
   }
 
@@ -242,6 +237,7 @@ function animate() {
   }
 }
 
+init()
 animate();
 
 addEventListener("keydown", ({ keyCode }) => {
@@ -255,7 +251,7 @@ addEventListener("keydown", ({ keyCode }) => {
       keys.right.pressed = true;
       break;
     case 87: // 'w' up
-      player.velocity.y -= 20;
+      player.velocity.y -= 10;
       break;
   }
 });
@@ -271,7 +267,6 @@ addEventListener("keyup", ({ keyCode }) => {
       keys.right.pressed = false;
       break;
     case 87: // 'w' up
-      // player.velocity.y -= 20
       break;
   }
 });

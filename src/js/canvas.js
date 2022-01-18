@@ -1,4 +1,6 @@
-import platform from '../images/platform.png'
+import platform from "../images/platform.png";
+import hills from "../images/hills.png";
+import background from "../images/background.png";
 
 const canvas = document.querySelector("canvas");
 
@@ -43,36 +45,78 @@ class Player {
 }
 
 class Platform {
-  constructor({x, y, image}) {
+  constructor({ x, y, image }) {
     this.position = {
       x,
-      y
+      y,
     };
-    
-    this.image = image
-    
+
+    this.image = image;
+
     this.width = image.width;
     this.height = image.height;
-
-    
   }
 
   draw() {
-    ctx.drawImage(this.image, this.position.x, this.position.y)
+    ctx.drawImage(this.image, this.position.x, this.position.y);
+  }
+}
+
+class GenericObject {
+  constructor({ x, y, image }) {
+    this.position = {
+      x,
+      y,
+    };
+
+    this.image = image;
+
+    this.width = image.width;
+    this.height = image.height;
+  }
+
+  draw() {
+    ctx.drawImage(this.image, this.position.x, this.position.y);
   }
 }
 
 // creates new Image HTML object
-const image = new Image()
-image.src = platform
+function createImage(imageSrc) {
+  console.log(imageSrc)
+  const image = new Image();
+image.src = imageSrc;
+return image
+}
+
+const platformImage = createImage(platform)
 
 const player = new Player();
 
-const platforms = [new Platform({
-  x: -1, y: 470, image
-}), new Platform({
-  x: image.width -3, y: 470, image
-})];
+const platforms = [
+  new Platform({
+    x: -1,
+    y: 470,
+    image: platformImage
+  }),
+  new Platform({
+    x: platformImage.width - 3,
+    y: 470,
+    image: platformImage
+  }),
+];
+
+const genericObjects = [
+  new GenericObject({
+    x: -1,
+    y: -1,
+    image: createImage(background)
+  }),
+  new GenericObject({
+    x: -1,
+    y: -1,
+    image: createImage(hills)
+  })
+]
 
 const keys = {
   right: {
@@ -84,15 +128,19 @@ const keys = {
 };
 
 // tracking platform scrolling
-let scrollOffset = 0
+let scrollOffset = 0;
 
 function animate() {
   //creates recursive animation loop
   requestAnimationFrame(animate);
 
-  ctx.fillStyle = 'white'
+  ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
+
+  genericObjects.forEach((obj) => {
+    obj.draw();
+  });
+
   platforms.forEach((platform) => {
     platform.draw();
   });
@@ -108,18 +156,23 @@ function animate() {
     // this is the point where we either move player to the max left or right, player actually stops moving and then
     // platforms/background moves to give illusion that player still moving
     if (keys.right.pressed) {
-      scrollOffset +=5
+      scrollOffset += 5;
       platforms.forEach((platform) => {
         platform.position.x -= 5;
       });
+      genericObjects.forEach(obj => {
+        obj.position.x -= 3
+      })
     } else if (keys.left.pressed) {
-      scrollOffset -=5
+      scrollOffset -= 5;
       platforms.forEach((platform) => {
         platform.position.x += 5;
       });
+      genericObjects.forEach(obj => {
+        obj.position.x += 3
+      })
     }
   }
-
 
   // rectangular collision detection (player/platform)
   platforms.forEach((platform) => {
@@ -135,14 +188,11 @@ function animate() {
   });
 
   if (scrollOffset === 2000) {
-    console.log('You win');
+    console.log("You win");
   }
 }
 
 animate();
-
-
-
 
 addEventListener("keydown", ({ keyCode }) => {
   switch (keyCode) {
